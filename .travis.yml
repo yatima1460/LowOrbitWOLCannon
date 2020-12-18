@@ -1,6 +1,5 @@
 language: csharp
 os: windows
-mono: latest
 dotnet: 4.7.2
 script:
   - dotnet restore
