@@ -1,6 +1,5 @@
-language: bash
+language: csharp
+solution: LowOrbitWOLCannon.sln
 os: windows
-dotnet: 4.7.2
-script:
-  - dotnet restore
-  - msbuild
+mono: 4.7.2
+
