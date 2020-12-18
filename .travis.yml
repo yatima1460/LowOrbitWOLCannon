@@ -1,3 +1,5 @@
 language: csharp
 solution: LowOrbitWOLCannon.sln
 os: windows
+mono:
+  - latest
