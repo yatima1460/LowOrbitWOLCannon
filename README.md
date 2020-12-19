@@ -1,14 +1,9 @@
 # LowOrbitWOLCannon
 
-| OS | Status |
-| - | - |
-| Windows | [![Build Status](https://travis-ci.com/yatima1460/LowOrbitWOLCannon.svg?branch=master)](https://travis-ci.com/yatima1460/LowOrbitWOLCannon) |
-
-Wake On Lan simple tool
+Wake On Lan simple tool using a port to check if a PC is online
+ICMP Ping sometimes gets blocked by firewalls
 
 ![](docs/screenshot.png)
-
-
 
 # LICENSE
 
