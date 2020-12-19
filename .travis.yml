@@ -1,5 +1,0 @@
-language: csharp
-solution: LowOrbitWOLCannon.sln
-os: windows
-mono: 4.7.2
-

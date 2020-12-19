@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -11,10 +12,6 @@ namespace LowOrbitWOLCannon
     {
 
         ///////////////////// CONFIG //////////////////////////////////////////
-        
-        // Ping
-        private readonly int PING_TIMEOUT = 250;
-        private readonly int PINGER_THREAD_TICK_MILLISECONDS = 1000;
 
         // Port
         //
@@ -26,11 +23,12 @@ namespace LowOrbitWOLCannon
         // WOL
         private readonly int HOW_MANY_WOL_PACKETS = 3;
 
+        // FAKE BOOT TIME
+        private readonly int BOOTING_TIME_MILLISECONDS = 20000;
+
         ////////////////////////////////////////////////////////////////////////
 
         private Status portStatus = Status.UNKNOWN;
-        private Status pingStatus = Status.UNKNOWN;
-        private Thread pingThread;
         private Thread portThread;
 
         enum Status
@@ -47,26 +45,39 @@ namespace LowOrbitWOLCannon
 
         private void pingStatusUIRefresher_Tick(object sender, EventArgs e)
         {
-            if (pingStatus == Status.UNKNOWN && portStatus == Status.UNKNOWN)
+            if (bootingProgress.Value == bootingProgress.Maximum)
             {
-                label3.Text = "Unknown";
-                label3.BackColor = Color.Gray;
+                bootingProgress.Visible = false;
             }
-            else if (pingStatus == Status.ONLINE | portStatus == Status.ONLINE)
+            switch (portStatus)
             {
-                label3.Text = "Online";
-                label3.BackColor = Color.Green;
+                case Status.UNKNOWN:
+                    {
+                        label3.Text = "Unknown";
+                        label3.BackColor = Color.Gray;
+                        openRDP.Visible = false;
+                        turnOn.Visible = true;
+                        break;
+                    }
+                case Status.ONLINE:
+                    {
+                        label3.Text = "Online";
+                        label3.BackColor = Color.Green;
+                        openRDP.Visible = true;
+                        bootingProgress.Visible = false;
+                        turnOn.Visible = false;
+                        break;
+                    }
+                case Status.OFFLINE:
+                    {
+                        label3.Text = "Offline";
+                        label3.BackColor = Color.Red;
+                        openRDP.Visible = false;
+                        turnOn.Visible = true;
+                        break;
+                    }
             }
-            else if (pingStatus == Status.OFFLINE && portStatus == Status.OFFLINE)
-            {
-                label3.Text = "Offline";
-                label3.BackColor = Color.Red;
-            }
-            else
-            {
-                label3.Text = "Offline?";
-                label3.BackColor = Color.DarkOrange;
-            }
+
         }
 
 
@@ -95,70 +106,24 @@ namespace LowOrbitWOLCannon
 
         }
 
-
-
-
-        void pingThreadRun()
+        private void StopThread()
         {
-            while (Visible)
-            {
-
-                if (workstation.Text.Length != 0)
-                {
-                    // Default ICMP Ping
-                    Ping pinger = null;
-                    try
-                    {
-                        pinger = new Ping();
-                        PingReply reply = pinger.Send(workstation.Text, PING_TIMEOUT);
-                        pingStatus = (reply.Status == IPStatus.Success) ? Status.ONLINE : Status.OFFLINE;
-                    }
-                    catch (PingException)
-                    {
-                        pingStatus = Status.OFFLINE;
-                    }
-                    finally
-                    {
-                        if (pinger != null)
-                        {
-                            pinger.Dispose();
-                        }
-                    }
-
-                }
-                else
-                {
-                    portStatus = Status.UNKNOWN;
-                }
-
-                Thread.Sleep(PINGER_THREAD_TICK_MILLISECONDS);
-            }
-
-        }
-
-
-        private void StopThreads()
-        {
-            pingThread.Abort();
-            pingStatus = Status.UNKNOWN;
-
             portThread.Abort();
             portStatus = Status.UNKNOWN;
         }
 
-        private void StartThreads()
+        private void StartThread()
         {
-            pingThread = new Thread(pingThreadRun);
-            pingThread.Start();
-            
             portThread = new Thread(portThreadRun);
             portThread.Start();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            bootingProgress.Visible = false;
+            openRDP.Visible = false;
             Properties.Settings.Default.SettingsLoaded += Default_SettingsLoaded;
-            StartThreads();
+            StartThread();
         }
 
         private void Default_SettingsLoaded(object sender, System.Configuration.SettingsLoadedEventArgs e)
@@ -170,8 +135,8 @@ namespace LowOrbitWOLCannon
 
         private void IP_TextChanged(object sender, EventArgs e)
         {
-            StopThreads();
-            StartThreads();
+            StopThread();
+            StartThread();
 
             Properties.Settings.Default["workstation"] = workstation.Text;
             Properties.Settings.Default.Save();
@@ -189,8 +154,12 @@ namespace LowOrbitWOLCannon
             Properties.Settings.Default.Save();
         }
 
+    
+
         private void FIRE_Click(object sender, EventArgs e)
         {
+            
+            AnimateProgBar(BOOTING_TIME_MILLISECONDS);
             for (int i = 0; i < HOW_MANY_WOL_PACKETS; ++i)
             {
                 Thread t = new Thread(() => WOL.WakeOnLan(mac.Text, broadcast.Text));
@@ -200,7 +169,38 @@ namespace LowOrbitWOLCannon
 
         private void Window_Closing(object sender, FormClosingEventArgs e)
         {
-            StopThreads();
+            StopThread();
         }
+
+        private void openRDP_Click(object sender, EventArgs e)
+        {
+            Process.Start("mstsc.exe", "/v:" + workstation.Text);
+        }
+
+        public void AnimateProgBar(int milliSeconds)
+        {
+            if (!bootingTimer.Enabled)
+            {
+                bootingProgress.Value = 0;
+                bootingTimer.Interval = milliSeconds / 100;
+                bootingTimer.Enabled = true;
+                bootingProgress.Visible = true;
+            }
+        }
+
+        private void bootingTimer_Tick(object sender, EventArgs e)
+        {
+            if (bootingProgress.Value < 100)
+            {
+                bootingProgress.Value += 1;
+                bootingProgress.Refresh();
+            }
+            else
+            {
+                bootingTimer.Enabled = false;
+                
+            }
+        }
+
     }
 }

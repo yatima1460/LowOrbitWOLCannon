@@ -39,12 +39,14 @@ namespace LowOrbitWOLCannon
             this.workstation = new System.Windows.Forms.TextBox();
             this.broadcast = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.openRDP = new System.Windows.Forms.Button();
+            this.bootingProgress = new System.Windows.Forms.ProgressBar();
+            this.bootingTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // pingStatusUIRefresherTick
             // 
             this.pingStatusUIRefresherTick.Enabled = true;
-            this.pingStatusUIRefresherTick.Interval = 10;
             this.pingStatusUIRefresherTick.Tick += new System.EventHandler(this.pingStatusUIRefresher_Tick);
             // 
             // label3
@@ -140,6 +142,32 @@ namespace LowOrbitWOLCannon
             this.label4.TabIndex = 15;
             this.label4.Text = "Broadcast";
             // 
+            // openRDP
+            // 
+            this.openRDP.BackColor = System.Drawing.Color.White;
+            this.openRDP.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.openRDP.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.openRDP.ForeColor = System.Drawing.Color.Black;
+            this.openRDP.Location = new System.Drawing.Point(504, 347);
+            this.openRDP.Name = "openRDP";
+            this.openRDP.Size = new System.Drawing.Size(182, 36);
+            this.openRDP.TabIndex = 16;
+            this.openRDP.Text = "Open RDP";
+            this.openRDP.UseVisualStyleBackColor = false;
+            this.openRDP.Click += new System.EventHandler(this.openRDP_Click);
+            // 
+            // bootingProgress
+            // 
+            this.bootingProgress.Location = new System.Drawing.Point(12, 347);
+            this.bootingProgress.Name = "bootingProgress";
+            this.bootingProgress.Size = new System.Drawing.Size(486, 36);
+            this.bootingProgress.TabIndex = 17;
+            // 
+            // bootingTimer
+            // 
+            this.bootingTimer.Interval = 10;
+            this.bootingTimer.Tick += new System.EventHandler(this.bootingTimer_Tick);
+            // 
             // Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -147,6 +175,8 @@ namespace LowOrbitWOLCannon
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImage = global::LowOrbitWOLCannon.Properties.Resources.danzaiver;
             this.ClientSize = new System.Drawing.Size(698, 395);
+            this.Controls.Add(this.bootingProgress);
+            this.Controls.Add(this.openRDP);
             this.Controls.Add(this.broadcast);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -160,7 +190,7 @@ namespace LowOrbitWOLCannon
             this.Name = "Window";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "LowOrbitWOLCannon - Seingreed is online";
+            this.Text = "LowOrbitWOLCannon - Seingreed is online!";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Window_Closing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -178,6 +208,9 @@ namespace LowOrbitWOLCannon
         private System.Windows.Forms.TextBox workstation;
         private System.Windows.Forms.TextBox broadcast;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button openRDP;
+        private System.Windows.Forms.ProgressBar bootingProgress;
+        private System.Windows.Forms.Timer bootingTimer;
     }
 }
 
